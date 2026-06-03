@@ -1,0 +1,10 @@
+*.out
+*.exe
+*.o
+*.dSYM/
+input.txt
+output.txt
+hmm.cpp
+compile_flags.txt
+error.txt
+hmm
