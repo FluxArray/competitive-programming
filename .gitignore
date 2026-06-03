@@ -8,3 +8,5 @@ hmm.cpp
 compile_flags.txt
 error.txt
 hmm
+.DS_Store
+**/.DS_Store
