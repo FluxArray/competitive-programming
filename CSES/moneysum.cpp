@@ -100,115 +100,36 @@ T SUM(const U &a){return accumulate(ALL(a),T{});}
 mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
 mt19937_64 rng64(chrono::steady_clock::now().time_since_epoch().count());
 
-/**
- * Description: modular arithmetic operations 
- * Source: https://github.com/bqi343/USACO/blob/master/Implementations/content/number-theory%20(11.1)/Modular%20Arithmetic/ModInt.h
- */
-
-template<int MOD, int RT> struct mint {
-    static const int mod = MOD;
-    static constexpr mint rt() { return RT; } // primitive root for FFT
-    int v; explicit operator int() const { return v; } // explicit -> don't silently convert to int
-    mint():v(0) {}
-    mint(ll _v) { v = int((-MOD < _v && _v < MOD) ? _v : _v % MOD);
-        if (v < 0) v += MOD; }
-    bool operator==(const mint& o) const {
-        return v == o.v; }
-    friend bool operator!=(const mint& a, const mint& b) { 
-        return !(a == b); }
-    friend bool operator<(const mint& a, const mint& b) { 
-        return a.v < b.v; }
-    friend istream& operator>>(istream& is, mint& a) {
-        ll x;is >> x;a = mint(x);return is; }
-    friend string to_string(const mint& a) { return to_string(a.v); }
-   
-    mint& operator+=(const mint& o) { 
-        if ((v += o.v) >= MOD) v -= MOD; 
-        return *this; }
-    mint& operator-=(const mint& o) { 
-        if ((v -= o.v) < 0) v += MOD; 
-        return *this; }
-    mint& operator*=(const mint& o) { 
-        v = int((ll)v*o.v%MOD); return *this; }
-    mint& operator/=(const mint& o) { return (*this) *= inv(o); }
-    friend mint pow(mint a, ll p) {
-        mint ans = 1; assert(p >= 0);
-        for (; p; p /= 2, a *= a) if (p&1) ans *= a;
-        return ans; }
-    friend mint inv(const mint& a) { assert(a.v != 0); 
-        return pow(a,MOD-2); }
-        
-    mint operator-() const { return mint(-v); }
-    mint& operator++() { return *this += 1; }
-    mint& operator--() { return *this -= 1; }
-    friend mint operator+(mint a, const mint& b) { return a += b; }
-    friend mint operator-(mint a, const mint& b) { return a -= b; }
-    friend mint operator*(mint a, const mint& b) { return a *= b; }
-    friend mint operator/(mint a, const mint& b) { return a /= b; }
-};
-
-using mi = mint<MOD,5>; // 5 is primitive root for both common mods
-using vmi = vector<mi>;
-using pmi = pair<mi,mi>;
-using vpmi = vector<pmi>;
-
-vector<vmi> scmb; // small combinations
-void genComb(int SZ) {
-    scmb.assign(SZ, vmi(SZ, 0)); scmb[0][0] = 1;
-    for (int i = 1; i < SZ; ++i) {
-        for (int j = 0; j <= i; ++j) {
-            // Pascal's Triangle addition
-            scmb[i][j] = scmb[i-1][j] + (j > 0 ? scmb[i-1][j-1] : 0);
-        }
-    }
-}
-
-// const int MAXN = 1e6; //change this according to the question
-// mi fac[MAXN + 1];
-// void factorial() { //don't foget to call factorial and inverses in the main function dummy >_<
-//     fac[0] = 1;
-//     for (int i = 1; i <= MAXN; i++) { fac[i] = fac[i - 1] * i; }
-// }
-
-// mi inverse[MAXN + 1];
-// void inverses() {
-//     inverse[MAXN] = pow(mi(fac[MAXN]), MOD - 2);
-//     for (int i = MAXN; i >= 1; i--) { inverse[i - 1] = inverse[i] * i; }
-// }
-
-// mi choose(ll n, ll r) {
-//     if (r < 0 || r > n) return 0;
-//     return fac[n] * inverse[r] * inverse[n - r];
-// }
-
-// mi da[MAXN + 1];
-// void derange(ll n) {
-//     da[0] = 1;
-//     mi c = 1;
-//     for (int i = 1; i <= n; i++) {
-//         c = (c * i) + (i % 2 == 1 ? -1 : 1);
-//         da[i] = c;
-//     }
-// }
-
 void solve() {
-    int n, x; cin >> n >> x;
+    int n; cin >> n;
     vi coins(n);
     for (int i = 0; i < n;i++) {
         cin >> coins[i];
     }
 
-    vmi dp(x + 1, 0);
+    int x = SUM<int>(coins);
+    vector<bool> dp(x + 1);
     dp[0] = 1;
-    mi ans = 0;
-    for (int i = 0; i <= x; i++) {
-        for (int c : coins) {
-            if (i - c >= 0) {
-                dp[i] += dp[i - c]; 
+
+    for (auto c : coins) {
+        for (int i = x; i >= c; i--) {
+            if (dp[i - c]) {
+                dp[i] = 1;
             }
         }
     }
-    cout << dp[x].v << '\n';
+
+    vl ans;
+    for (int i = 1; i <= x; i++) {
+        if (dp[i]) {
+            ans.pb(i);
+        }
+    }
+    cout << SZ(ans) << '\n';
+    for (auto i : ans) {
+        cout << i << ' ';
+    }
+    cout << '\n';
 }
 
 signed main() {
